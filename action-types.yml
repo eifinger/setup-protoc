@@ -1,0 +1,44 @@
+# See https://github.com/typesafegithub/github-actions-typing
+
+inputs:
+  version:
+    type: string
+  version-file:
+    type: string
+  working-directory:
+    type: string
+  resolution-strategy:
+    type: enum
+    allowed-values:
+      - highest
+      - lowest
+  architecture:
+    type: enum
+    allowed-values:
+      - x64
+      - arm64
+      - ia32
+      - ppc64
+      - s390x
+  checksum:
+    type: string
+  github-token:
+    type: string
+  repo-token:
+    type: string
+  add-problem-matchers:
+    type: boolean
+
+outputs:
+  protoc-version:
+    type: string
+  protoc-path:
+    type: string
+  protoc-include:
+    type: string
+  cache-hit:
+    type: boolean
+  version:
+    type: string
+  path:
+    type: string

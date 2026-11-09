@@ -1,0 +1,50 @@
+name: setup-protoc
+description: Install the Protocol Buffers compiler with verified downloads and version-file support.
+author: eifinger
+branding:
+  icon: package
+  color: blue
+inputs:
+  version:
+    description: "Stable protoc version, range, latest, or latest-known. Defaults to .protoc-version, then .tool-versions, then latest."
+    default: ""
+  version-file:
+    description: "Version file relative to working-directory; a plain version file or .tool-versions."
+    default: ""
+  working-directory:
+    description: Directory used to find version files.
+    default: ${{ github.workspace }}
+  resolution-strategy:
+    description: "Select the highest or lowest release matching a version range."
+    default: highest
+  architecture:
+    description: "Binary architecture: x64, arm64, ia32, ppc64, or s390x. Defaults to the runner architecture; Windows ARM64 uses x64 emulation."
+    default: ""
+  checksum:
+    description: Expected SHA-256 of the downloaded ZIP. Overrides the bundled checksum and GitHub release digest.
+    default: ""
+  github-token:
+    description: GitHub.com API token. Defaults to github.token on GitHub.com and empty on GitHub Enterprise Server; repo-token takes precedence when supplied.
+    default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+  repo-token:
+    description: Compatibility alias for arduino/setup-protoc. Overrides github-token when supplied.
+    default: ""
+  add-problem-matchers:
+    description: Annotate protoc errors and warnings in workflow logs.
+    default: "true"
+outputs:
+  protoc-version:
+    description: Installed release version, without the v prefix.
+  protoc-path:
+    description: Absolute path to the protoc executable.
+  protoc-include:
+    description: Absolute path to the bundled include directory.
+  cache-hit:
+    description: Whether a verified installation was found in the runner tool cache.
+  version:
+    description: Installed release version with the v prefix, for arduino/setup-protoc compatibility.
+  path:
+    description: Absolute path to the installation directory containing bin and include, for arduino/setup-protoc compatibility.
+runs:
+  using: node24
+  main: dist/setup/index.cjs

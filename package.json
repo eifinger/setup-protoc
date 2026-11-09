@@ -1,0 +1,41 @@
+{
+  "name": "setup-protoc",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Install the Protocol Buffers compiler in GitHub Actions",
+  "license": "MIT",
+  "author": "Kevin Stillhammer",
+  "repository": "github:eifinger/setup-protoc",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "check": "biome check .",
+    "format": "biome check --write .",
+    "package": "node scripts/build-dist.mjs",
+    "test": "tsx --test tests/*.test.ts",
+    "test:integration": "tsx --test tests/integration/*.test.ts",
+    "update-known-checksums": "tsx scripts/update-known-checksums.ts",
+    "all": "npm run build && npm run check && npm test && npm run package"
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.1",
+    "@actions/http-client": "^4.0.1",
+    "@actions/tool-cache": "^4.0.0",
+    "semver": "^7.8.6"
+  },
+  "devDependencies": {
+    "@actions/expressions": "^0.3.61",
+    "@biomejs/biome": "^2.6.6",
+    "@types/node": "^24.19.2",
+    "@types/semver": "^7.8.0",
+    "esbuild": "^0.28.2",
+    "fflate": "^0.8.3",
+    "nock": "^15.0.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "yaml": "^2.9.1"
+  }
+}

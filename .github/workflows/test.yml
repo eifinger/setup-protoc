@@ -1,0 +1,150 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm audit signatures
+      - run: npm run all
+      - name: Verify committed bundle
+        run: |
+          git diff --exit-code -- dist
+          test -z "$(git ls-files --others --exclude-standard dist)"
+      - name: Test the bundle with real releases
+        run: npm run test:integration
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: eifinger/actionlint-action@1fc89649be682d16ec5cf65ea16e269eb88d3982 # v1.10.2
+      - name: Validate action typings
+        uses: typesafegithub/github-actions-typing@9ddf35b71a482be7d8922b28e8d00df16b77e315 # v2.2.2
+
+  platforms:
+    name: Protoc on ${{ matrix.os }} (${{ matrix.architecture || 'native' }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
+          - os: macos-15-intel
+          - os: macos-15
+          - os: windows-latest
+          - os: windows-11-arm
+          - os: windows-latest
+            architecture: ia32
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Install the default latest release
+        id: latest
+        uses: ./
+        with:
+          architecture: ${{ matrix.architecture }}
+      - run: node tests/smoke.mjs
+      - name: Reuse the installation
+        id: cached
+        uses: ./
+        with:
+          version: ${{ steps.latest.outputs.protoc-version }}
+          architecture: ${{ matrix.architecture }}
+      - name: Check outputs and cache hit
+        shell: bash
+        env:
+          CACHE_HIT: ${{ steps.cached.outputs.cache-hit }}
+          INSTALLED_PATH: ${{ steps.cached.outputs.protoc-path }}
+          INSTALLED_INCLUDE: ${{ steps.cached.outputs.protoc-include }}
+          INSTALLED_ROOT: ${{ steps.cached.outputs.path }}
+          INSTALLED_VERSION: ${{ steps.cached.outputs.version }}
+          RELEASE_VERSION: ${{ steps.cached.outputs.protoc-version }}
+        run: |
+          test "$CACHE_HIT" = true
+          test "$INSTALLED_PATH" = "$PROTOC"
+          test "$INSTALLED_INCLUDE" = "$PROTOC_INCLUDE"
+          test "$INSTALLED_VERSION" = "v$RELEASE_VERSION"
+          node -e 'require("node:assert/strict").equal(require("node:path").join(process.env.INSTALLED_ROOT, "include"), process.env.INSTALLED_INCLUDE)'
+      - name: Install from .tool-versions
+        uses: ./
+        with:
+          working-directory: tests/fixtures/versions
+          version-file: .tool-versions
+          architecture: ${{ matrix.architecture }}
+      - run: node tests/smoke.mjs
+        env:
+          EXPECTED_CLI_VERSION: "33.0"
+      - name: Discover .protoc-version before .tool-versions
+        uses: ./
+        with:
+          working-directory: tests/fixtures/versions
+          architecture: ${{ matrix.architecture }}
+      - run: node tests/smoke.mjs
+        env:
+          EXPECTED_CLI_VERSION: "25.3"
+      - name: Install from an explicit plain version file
+        uses: ./
+        with:
+          working-directory: tests/fixtures/versions
+          version-file: .protoc-version
+          architecture: ${{ matrix.architecture }}
+      - run: node tests/smoke.mjs
+        env:
+          EXPECTED_CLI_VERSION: "25.3"
+      - name: Install lowest matching release
+        uses: ./
+        with:
+          version: ">=33.0 <33.1"
+          resolution-strategy: lowest
+          architecture: ${{ matrix.architecture }}
+      - run: node tests/smoke.mjs
+        env:
+          EXPECTED_CLI_VERSION: "33.0"
+      - name: Reject an incorrect checksum even with a warm cache
+        id: bad-checksum
+        continue-on-error: true
+        uses: ./
+        with:
+          version: "33.0"
+          architecture: ${{ matrix.architecture }}
+          checksum: "0000000000000000000000000000000000000000000000000000000000000000"
+      - name: Assert checksum rejection
+        shell: bash
+        env:
+          OUTCOME: ${{ steps.bad-checksum.outcome }}
+        run: test "$OUTCOME" = failure
+
+  all-tests-passed:
+    if: always()
+    needs: [checks, platforms]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every test job to succeed
+        env:
+          CHECKS: ${{ needs.checks.result }}
+          PLATFORMS: ${{ needs.platforms.result }}
+        run: test "$CHECKS" = success && test "$PLATFORMS" = success

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+dist/** linguist-generated=true
+src/known-checksums.json linguist-generated=true
