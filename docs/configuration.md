@@ -23,7 +23,7 @@ Older releases may not provide all targets; for example, `3.20.3` has no native
 macOS ARM64 archive. There is no automatic macOS fallback to Rosetta.
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   with:
     version: "33.0"
     architecture: x64
@@ -48,7 +48,7 @@ checksum from a trusted source or request an addition to the table. A missing or
 mismatched checksum never falls back to an unverified download.
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   with:
     version: "33.0"
     architecture: x64

@@ -38,7 +38,7 @@ Some release and executable versions differ. For example, release `21.12` prints
 translate protobuf language-package versions into compiler release versions.
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   with:
     version: ">=33.0 <34"
     resolution-strategy: lowest
@@ -65,7 +65,7 @@ accepted. The action discovers `.protoc-version` automatically. Use `version-fil
 to select a differently named plain file:
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   with:
     working-directory: tools
     version-file: protoc-version.txt
@@ -84,7 +84,7 @@ tools are ignored. Comments and tabs are accepted. Duplicate entries, fallback
 versions, `system`, `ref:`, paths, and version ranges fail with an error.
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   with:
     version-file: .tool-versions
 ```

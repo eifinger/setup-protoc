@@ -3,7 +3,7 @@
 Change the action name and keep your existing version inputs:
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   with:
     version: "23.x"
     repo-token: ${{ secrets.GITHUB_TOKEN }}
