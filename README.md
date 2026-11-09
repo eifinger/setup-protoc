@@ -13,7 +13,7 @@ Install the [Protocol Buffers compiler](https://protobuf.dev/) in GitHub Actions
 ```yaml
 steps:
   - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-  - uses: eifinger/setup-protoc@<commit-sha>
+  - uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
     with:
       version: "33.0"
   - run: protoc --version
@@ -58,7 +58,7 @@ The action adds protoc to `PATH`. It also exports `PROTOC` (the executable path)
 and `PROTOC_INCLUDE` (the include directory) for later steps.
 
 ```yaml
-- uses: eifinger/setup-protoc@<commit-sha>
+- uses: eifinger/setup-protoc@1d3443f7c29b07b22fd3917a5600fca9c96b6d5a # v1.0.0
   id: protoc
   with:
     version-file: .tool-versions
